@@ -63,7 +63,35 @@
         error: function(msg) { alert("An Error occured!"); }
     });
     return false;
-    }    
+    } 
+
+
+    function renderbook(form){
+        $('#bookprogress').html("Please Wait..");
+    $('#result').html("");
+    var file="test.txt" 
+    var jsonRequest = {
+         "method" :  "modules.Render.wiki2book",
+         "params" : [file], 
+         "id" : ""
+    };
+    $.ajax({
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        url: "JSONRPC",
+        data: $.toJSON(jsonRequest), 
+        dataType: "json",
+        success: function(msg) {
+            var resultobj =  msg.result ;
+            $('#bookprogress').html("");
+            var resulthtml= "<a href= '" + resultobj+"' target='_new'>Open or Download PDF</a>";
+            $('#bookresult').html(resulthtml);
+        },
+        error: function(msg) { alert("An Error occured!"); }
+    });
+    return false;
+    } 
+   
     </script>
   </head>
   <body>
@@ -78,6 +106,15 @@
             <div id="pdfprogress"></div>
             <div id="pdfresult" ></div>
         </form>
+
+       <h3>Generate Book  a </h3>
+        <form id="wiki2bookform" action="" method="post"  onsubmit="return renderbook(this); " >
+           <!--  Wiki URL: <input type="text" name="wikiurl" value="http://ml.wikipedia.org/wiki/Mango"  style="width:30em;" id="wikiurl"/> -->
+            <input  type="submit" id="Render" value="Create Book"  name="action" style="width:10em;"/>
+            <div id="bookprogress"></div>
+            <div id="bookresult" ></div>
+        </form>
+
         
         <h3>Convert Text to Image</h3>
         <form action="" method="post"  onsubmit="return rendercontent(this); " >

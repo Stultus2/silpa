@@ -1,11 +1,12 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
-# pypdflib/samples/wiki2pdf.py
+
 
 # pypdflib is a pango/cairo framework for generating reports.
 # Copyright © 2010  Santhosh Thottingal <santhosh.thottingal@gmail.com>
+# Copyright © 2012  Hrishikesh K B <hrishi.kb@gmail.com>            
 
-# This file is part of pypdflib.
+# 
 #
 # pypdflib is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -48,29 +49,33 @@ lang_codes = {'en':'en_US',
               'ta':'ta_IN',
               'te':'te_IN'}
 
-class Wikiparser(HTMLParser):
-    def __init__(self, url, filename, font='serif', verbose=0):
+class Wikiparser2(HTMLParser):
+    def __init__(self, inputfile, filename, font='serif', verbose=0):
         "Initialise an object, passing 'verbose' to the superclass."
         HTMLParser.__init__(self)
         self.hyperlinks = []
-        self.url = url
+        self.inputfile=inputfile
+        self.inputfile=os.path.join(os.path.dirname(__file__),self.inputfile)
+        f = file(self.inputfile)
+        url=f.readline()
+        f.close()
         self.font = font
         self.language = detect_language(url)
         tmp_folder = os.path.join(os.path.dirname(__file__), "tmp")
         self.pdf = PDFWriter(os.path.join(tmp_folder, filename), StandardPaper.A4)
         header = Header(text_align=pango.ALIGN_CENTER)
         #TODO Alignment not working.
-        header.set_text(urllib.unquote(self.url))
+        header.set_text(urllib.unquote(url))
         self.pdf.set_header(header)
         self.pdf.move_context(0, 500)
-        h1 = Text(urllib.unquote(self.url.split("/")[-1]), font=self.font, font_size=32) 
+        h1 = Text(urllib.unquote(url.split("/")[-1]), font=self.font, font_size=32) 
         h1.color = StandardColors.Blue
         self.pdf.add_text(h1)
-        h2 = Text(urllib.unquote(self.url), font=self.font, font_size=16) 
+        h2 = Text(urllib.unquote(url), font=self.font, font_size=16) 
         h2.color = StandardColors.Blue
         self.pdf.add_text(h2)
         footer = Footer(text_align=pango.ALIGN_CENTER)
-        footer.set_text("wiki2pdf")
+        footer.set_text("wiki2book")
         self.pdf.set_footer(footer)
         self.pdf.page_break()
         
@@ -290,17 +295,17 @@ class Wikiparser(HTMLParser):
     def parse(self):
         opener = urllib2.build_opener()
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-        infile = opener.open(self.url)
-        page = infile.read()
-        page = cleanup(page)
-#        f= open("computer.txt","w")
-#        f.write(page)
-#        f.close()
-#        f = open("computer.txt","r")
-#        page=f.read()
-#        f.close()
-        "Parse the given string 's'."
-        self.feed(page)
+        f = file(self.inputfile)
+        while True:
+          url = f.readline()
+          if len(url) == 0: 
+             break
+          infile = opener.open(url)
+          page = infile.read()
+          page = cleanup(page)
+          "Parse the given string 's'."
+          self.feed(page)
+          self.pdf.page_break()
         self.close()
         self.pdf.flush()
         

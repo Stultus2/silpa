@@ -27,6 +27,7 @@ import urllib
 import pango
 import pangocairo
 from wiki2pdf  import Wikiparser
+from wiki2book import Wikiparser2
 from modules.hyphenator import hyphenator
 from styles import *
 from common.silparesponse import SilpaResponse
@@ -83,6 +84,19 @@ class Render(SilpaModule):
 		#	print ("File already exists.")    
         return ("modules/render/tmp/"+filename)
         
+    @ServiceMethod
+    def wiki2book(self,inputfile="test.txt", font='Serif'):
+        m = hashlib.md5()
+        m.update(inputfile.encode("utf-8"))
+        filename =  m.hexdigest()[0:5]+".pdf"
+        #if not os.path.exists(os.path.join(os.path.dirname(__file__), "tmp",filename)):
+        parser = Wikiparser2(inputfile,filename, font)
+        parser.parse()
+        #else:
+                #       print ("File already exists.")    
+        return ("modules/render/tmp/"+filename)
+   
+
     @ServiceMethod  
     def render_text(self, text, file_type='png', width=0, height=0, color="Black", font='Serif', font_size=12):
         surface = None
